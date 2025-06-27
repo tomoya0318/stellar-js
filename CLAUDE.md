@@ -13,7 +13,7 @@ tags: [github-api, sqlite, drizzle-orm, typescript, tdd]
 
 ## プロジェクト概要
 
-このプロジェクトは、GitHubからリポジトリデータを取得・保存するためのデータ収集ツールです。GitHub APIを通じてデータを取得し、SQLiteデータベースに永続化します。分析は別のリポジトリやプロセスで行うことを想定しており、このプロジェクトはデータ取得と保存の責務に特化しています。
+このプロジェクトは、GitHubからJavaScriptリポジトリのデータを取得・保存するためのデータ収集ツールです。GitHub APIを通じてデータを取得し、SQLiteデータベースに永続化します。分析は別のリポジトリやプロセスで行うことを想定しており、このプロジェクトはデータ取得と保存の責務に特化しています。
 
 ## 技術スタック
 
@@ -31,14 +31,22 @@ tags: [github-api, sqlite, drizzle-orm, typescript, tdd]
 
 ```
 project-root/
-├── drizzle.config.ts           # Drizzle設定
-├── package.json                # npm/nodeの設定ファイル
-├── package-lock.json           # 依存関係ロック
-├── tsconfig.json               # TypeScript設定
-├── vitest.config.ts            # テスト設定
-├── .gitignore                  # バージョン管理除外ファイル
-├── README.md                   # 人間向けのプロジェクトの説明
-└── CLAUDE.md                   # このファイル
+├── src/
+│   ├── core/          # ビジネスロジック
+│   ├── types/         # 型定義
+│   ├── api/           # GitHub API関連
+│   └── repository/    # データベースアクセス層
+├── drizzle/           # スキーマ・マイグレーション
+├── data/              # SQLiteファイル
+├── tests/             # テストファイル
+├── drizzle.config.ts  # Drizzle設定
+├── package.json       # npm/nodeの設定ファイル
+├── package-lock.json  # 依存関係ロック
+├── tsconfig.json      # TypeScript設定
+├── vitest.config.ts   # テスト設定
+├── .gitignore         # バージョン管理除外ファイル
+├── README.md          # 人間向けのプロジェクトの説明
+└── CLAUDE.md          # このファイル
 ```
 
 ## 実装時の必須要件
@@ -138,7 +146,31 @@ npm run db:generate # スキーマ変更からマイグレーションファイ�
 npm run db:migrate  # マイグレーションを実行してDBを更新
 npm run db:studio   # Drizzle Studioを起動してDBをGUIで確認
 ```
+
 ## コーディング規約
+
+- **言語**: TypeScript (開発言語), JavaScript (主要な収集対象)
+- **ランタイム**: Node.js
+- **主要ライブラリ**:
+    - **ORM**: Drizzle
+    - **テスト**: Vitest
+    - **リンター/フォーマッター**: Biome
+- **コーディングスタイル**:
+    - プロジェクト既存のコードスタイルに従ってください。
+    - Biomeのフォーマットルール (`biome.json`) を遵守してください。 `npx biome check --apply .` を実行して確認してください。
+- **テスト**:
+    - Vitestを利用します。
+    - テストコードは `*.test.ts` または `*.spec.ts` という命名規則で、テスト対象ファイルと同じディレクトリか、専用の `__tests__` ディレクトリに配置します。
+    - 既存のテストのスタイルに従ってください。
+- **ドキュメント**:
+    - JSDoc形式でコメントを記述してください。特に、公開APIや複雑なロジックにはコメントを追加してください。
+- **コミットメッセージ**:
+    - [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) の規約に従ってください。
+- **その他**:
+    - 型定義を積極的に利用し、`any`型は原則として使用しないでください。
+    - 依存関係は `package.json` で管理します。
+    - `.gitignore` に従って、不要なファイルはコミットに含めないでください。
+    - `README.md` にはプロジェクトの概要やセットアップ方法を記載します。
 
 ### ディレクトリ構成
 

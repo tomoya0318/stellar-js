@@ -1,176 +1,176 @@
-# stellar-js
+# Stellar-JS: GitHub Repository Mining Tool
 
-GitHub JavaScript/TypeScript プロジェクト分析ツール
+JavaScript + Node.jsで構築されたGitHubリポジトリのデータ収集・分析ツールです。GitHub APIを通じてリポジトリデータを取得し、多次元フィルタリングを行ってSQLiteデータベースに保存します。
 
-## 概要
+## 📋 目次
 
-stellar-jsは、GitHubからJavaScript/TypeScriptプロジェクトのデータを収集・分析するためのCLIツールです。GitHub APIを通じてプロジェクト情報を取得し、SQLiteデータベースに保存して、詳細な分析を提供します。
+- [特徴](#特徴)
+- [技術スタック](#技術スタック)
+- [セットアップ](#セットアップ)
+- [使用方法](#使用方法)
+- [フィルタリング機能](#フィルタリング機能)
+- [データベース構造](#データベース構造)
+- [開発](#開発)
+- [トラブルシューティング](#トラブルシューティング)
 
-### 主な機能
+## ✨ 特徴
 
-- 🔍 **プロジェクト収集**: GitHub APIでJS/TSプロジェクトを自動収集
-- 📊 **詳細分析**: フレームワーク、ライセンス、アクティビティ分析
-- 🗄️ **データ永続化**: SQLiteデータベースによる高速データ保存
-- 🎯 **品質フィルタ**: スター数、最新性、package.json有無などで自動フィルタ
-- 📈 **統計情報**: 言語分布、人気フレームワーク、トレンド分析
+- **多次元フィルタリング**: 人気度、活動度、品質など複数の観点でリポジトリを評価
+- **適応的Tierシステム**: スター数に応じて収集目標を動的に調整
+- **型安全**: TypeScriptによる完全な型安全性（`any`型を排除）
+- **スケーラブル**: バッチ処理による大量データ対応
+- **データ永続化**: SQLite + Drizzle ORMによる堅牢なデータ管理
+- **レート制限対応**: GitHub APIのレート制限を自動管理
 
-## 技術スタック
+## 🛠 技術スタック
 
 - **言語**: TypeScript + Node.js (ESM)
-- **実行環境**: tsx (開発時), Node.js (本番)
-- **GitHub APIクライアント**: @octokit/rest
-- **データベース**: SQLite (via better-sqlite3)
+- **GitHub API**: @octokit/rest
+- **データベース**: SQLite (better-sqlite3)
 - **ORM**: Drizzle ORM
-- **データベース管理**: drizzle-kit
-- **リンター/フォーマッター**: @biomejs/biome
-- **テストフレームワーク**: Vitest
-- **パッケージ管理**: npm
+- **テスト**: Vitest
+- **コード品質**: Biome (リンター/フォーマッター)
+- **実行環境**: tsx (開発), Node.js (本番)
 
-## インストール
+## 🚀 セットアップ
+
+### 1. 環境要件
+
+- Node.js 18以上
+- npm または pnpm/yarn
+
+### 2. インストール
 
 ```bash
+# リポジトリをクローン
+git clone <repository-url>
+cd stellar-js
+
+# 依存関係をインストール
 npm install
 ```
 
-## 🚀 クイックスタート
+### 3. 環境変数設定
 
-### 環境設定
-
-1. **GitHub Personal Access Token の作成**
-   - [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)
-   - `public_repo` スコープを選択
-   - 生成されたトークンをコピー
-
-2. **環境変数の設定**
-   ```bash
-   echo "GITHUB_TOKEN=your_github_token_here" > .env
-   ```
-
-### 基本的な使い方
+GitHub Personal Access Tokenが必要です。
 
 ```bash
-# ヘルプ表示
-npx tsx src/index.ts
-
-# プロジェクト収集 (最小10スター、最大20件)
-npx tsx src/index.ts collect --min-stars 10 --max-repositories 20
-
-# TypeScriptプロジェクトのみ収集
-npx tsx src/index.ts collect --language typescript --max-repositories 10
-
-# 既存データの分析
-npx tsx src/index.ts analyze
-
-# 詳細分析（フレームワーク、ライセンス分布など）
-npx tsx src/index.ts analyze --detailed --language javascript
-
-# JSON形式でエクスポート
-npx tsx src/index.ts analyze --detailed --export-json
+# .env ファイルを作成
+cp .env.example .env
 ```
+次に、`.env`ファイルを開き、`your_github_personal_access_token`をあなたのトークンに置き換えてください。
 
-### 開発
-
-```bash
-# 開発サーバー起動（ホットリロード付き）
-npm run dev
-```
-
-### コード品質管理
+### 4. データベース初期化
 
 ```bash
-# コードフォーマット
-npm run format
-
-# リントチェック
-npm run lint
-
-# リント問題の自動修正
-npm run lint:fix
-
-# 型チェック
-npm run type-check
-
-# 全ての品質チェックを実行
-npm run check
-```
-
-### テスト
-
-```bash
-# 全テスト実行
-npm run test
-
-# 監視モードでテスト実行
-npm run test:watch
-```
-
-### データベース管理
-
-```bash
-# スキーマ変更からマイグレーションファイルを生成
-npm run db:generate
-
-# マイグレーションを実行してDBを更新
+# データベースマイグレーションを実行
 npm run db:migrate
 
-# Drizzle StudioでGUI上からDB管理
+# データベース構造を確認（オプション）
 npm run db:studio
 ```
 
-## 📁 プロジェクト構成
+## 📖 使用方法
 
-```
-stellar-js/
-├── src/                         # ソースコードディレクトリ
-│   ├── config/                  # 設定管理（環境変数、アプリ設定）
-│   ├── github/                  # GitHub API関連（クライアント、プロジェクト分析）
-│   ├── lib/                     # 共通ライブラリ（DB接続、データ変換）
-│   ├── repositories/            # データベースCRUD操作
-│   ├── scripts/                 # 実行スクリプト（収集、分析）
-│   ├── types/                   # TypeScript型定義
-│   └── index.ts                 # メインCLIエントリーポイント
-├── tests/                       # テストディレクトリ
-│   ├── unit/                    # 単体テスト（データ変換、分析ロジック）
-│   ├── integration/             # 統合テスト（データベース操作）
-│   └── setup.ts                 # テストセットアップユーティリティ
-├── data/                        # データファイル
-│   └── stellar.db               # SQLiteデータベース
-├── drizzle/                     # Drizzle ORM関連
-│   ├── migrations/              # データベースマイグレーション
-│   └── schema.ts                # データベーススキーマ定義
-└── 設定ファイル類
-```
+### 大規模収集の実行
 
-## 🗄️ データベーススキーマ
+このプロジェクトのメイン機能です。`scripts/production`内のスクリプト群を統合的に実行し、約1000件の高品質なJavaScriptリポジトリを収集・分析します。
 
-プロジェクトは以下の情報を収集・保存します：
-
-- **基本情報**: リポジトリ名、オーナー、説明、URL
-- **統計データ**: スター数、フォーク数、コントリビューター数、サイズ
-- **技術情報**: 主要言語、ライセンス、トピック、デフォルトブランチ
-- **活動データ**: 最終コミット日、最終更新日、作成日
-- **メタデータ**: 取得日時、依存関係数
-
-## 🛠️ 高度な使用例
-
-### カスタムフィルタでの収集
 ```bash
-# 高品質プロジェクトのみ収集（100スター以上、最近更新）
-npx tsx src/index.ts collect --min-stars 100 --max-repositories 50
-
-# 既存データをスキップして新規のみ追加
-npx tsx src/index.ts collect --skip-existing --max-repositories 30
+# 大規模収集を開始
+npm run large-scale-collection
 ```
 
-### 詳細分析レポート
+このコマンドは、以下のフェーズを順番に実行します。
+1.  **Phase 1**: 品質を重視したリポジトリ収集
+2.  **Phase 2**: 時系列分析を目的としたリポジトリ収集
+3.  **Phase 3**: 包括的な分析とデータセットのエクスポート
+
+### 個別スクリプトの実行
+
+開発やデバッグのために、個別のスクリプトを実行することも可能です。
+
 ```bash
-# 特定オーナーのプロジェクト分析
-npx tsx src/index.ts analyze --detailed --owner microsoft
+# 開発用の分析スクリプト
+npx tsx scripts/development/analyze-results.ts
 
-# 最小1000スター以上のプロジェクトのみ分析
-npx tsx src/index.ts analyze --detailed --min-stars 1000
+# 参考用のプロトタイプ収集
+npx tsx scripts/legacy/strict-collection.ts
+```
+スクリプトの詳細は`scripts/README.md`を参照してください。
+
+## 🔍 フィルタリング機能
+
+### 適応的Tierシステム
+
+本ツールは、スター数に応じてリポジトリを複数の「Tier（階層）」に分割し、それぞれのTierで異なる収集目標とフィルタリング基準を適用します。これにより、スター数が極端に多いリポジトリから、比較的新しい有望なリポジトリまで、バランス良く高品質なデータを収集できます。
+
+### 主要なフィルター
+
+- **人気度フィルター (PopularityFilter)**: スター数、フォーク数など
+- **活動度フィルター (ActivityFilter)**: コントリビューター数、最終Push日など
+- **品質フィルター (QualityFilter)**: READMEの有無、ライセンス、Issueの解決速度など
+
+## 🗄 データベース構造
+
+### 主要テーブル
+
+- **repositories**: リポジトリの基本情報
+- **filtering_stages**: フィルタリングステージの定義
+- **repository_filter_status**: 各リポジトリのフィルタリング結果
+- **repository_metrics**: リポジトリの詳細メトリクス
+- **quality_assessments**: 品質評価結果
+- **collection_batches**: 収集バッチの管理情報
+
+### データベース操作
+
+```bash
+# スキーマ変更の生成
+npm run db:generate
+
+# マイグレーション実行
+npm run db:migrate
+
+# データベースGUI（Drizzle Studio）
+npm run db:studio
 ```
 
-## ライセンス
+## 🔧 開発
 
-MIT
+### 開発コマンド
+
+```bash
+# 開発サーバー起動（ホットリロード）
+npm run dev
+
+# コード品質チェック
+npm run format      # コード整形
+npm run lint        # リントチェック
+npm run type-check  # 型チェック
+npm run test        # テスト実行
+
+# 全チェック実行
+npm run check
+```
+
+## 🐛 トラブルシューティング
+
+### よくある問題
+
+#### 1. GitHub API レート制限
+**解決方法:**
+- `.env`ファイルの`GITHUB_TOKEN`が正しく設定されているか確認してください。
+- レート制限がリセットされるまで待つか、`batchSize`を小さくして実行頻度を調整してください。
+
+#### 2. データベース接続エラー
+**解決方法:**
+- `npm run db:migrate`を再実行してください。
+- `data/`ディレクトリのパーミッションを確認してください。
+
+## 📄 ライセンス
+
+MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照
+
+## 🤝 コントリビューション
+
+プルリクエストを歓迎します。`npm run check`が全て通ることを確認してから、プルリクエストを作成してください。
