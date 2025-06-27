@@ -13,24 +13,34 @@
     "lint:fix": "biome check --apply .",
     "format": "biome format --write .",
     "check": "npm run lint && npm run type-check && npm run test",
-    "db:generate": "drizzle-kit generate:sqlite",
-    "db:migrate": "drizzle-kit push:sqlite",
-    "db:studio": "drizzle-kit studio"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "large-scale-collection": "tsx scripts/production/large-scale-collection.ts",
+    "phase1": "tsx scripts/production/phase1-quality.ts",
+    "phase2": "tsx scripts/production/phase2-temporal.ts",
+    "export-dataset": "tsx scripts/production/export-dataset.ts",
+    "comprehensive-analysis": "tsx scripts/production/comprehensive-analysis.ts"
   },
-  "keywords": ["github", "mining", "repository", "data"],
+  "keywords": [
+    "github",
+    "mining",
+    "repository",
+    "data"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@octokit/rest": "^20.0.2",
-    "drizzle-orm": "^0.29.0",
     "better-sqlite3": "^9.2.2",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "drizzle-orm": "^0.44.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.4.1",
     "@types/better-sqlite3": "^7.6.8",
     "@types/node": "^20.10.5",
-    "drizzle-kit": "^0.20.7",
+    "drizzle-kit": "^0.31.4",
     "tsx": "^4.6.2",
     "typescript": "^5.3.3",
     "vitest": "^1.1.0"

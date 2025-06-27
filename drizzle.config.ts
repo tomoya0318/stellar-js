@@ -1,10 +1,12 @@
-import type { Config } from 'drizzle-kit';
+import { defineConfig } from 'drizzle-kit';
 
-export default {
+export default defineConfig({
   schema: './drizzle/schema.ts',
   out: './drizzle/migrations',
-  driver: 'better-sqlite',
+  dialect: 'sqlite',
   dbCredentials: {
     url: './data/stellar.db',
   },
-} satisfies Config;
+  verbose: true,
+  strict: true,
+});

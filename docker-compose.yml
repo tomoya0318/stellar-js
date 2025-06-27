@@ -1,0 +1,116 @@
+version: '3.8'
+
+services:
+  stellar-collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: stellar-js-collector
+    environment:
+      - NODE_ENV=production
+      - DATABASE_PATH=/app/data/stellar.db
+      - LOG_LEVEL=info
+    env_file:
+      - .env
+    volumes:
+      # Data persistence
+      - stellar_data:/app/data
+      - stellar_logs:/app/logs
+      - stellar_exports:/app/exports
+      - stellar_config:/app/config
+      # Optional: Mount local .env for development
+      - ./.env:/app/.env:ro
+    working_dir: /app
+    command: npm run large-scale-collection
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - stellar-network
+
+  # Optional: Database viewer service
+  stellar-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: stellar-db-studio
+    environment:
+      - NODE_ENV=development
+      - DATABASE_PATH=/app/data/stellar.db
+    env_file:
+      - .env
+    volumes:
+      - stellar_data:/app/data:ro
+    working_dir: /app
+    command: npm run db:studio
+    ports:
+      - "4983:4983"
+    depends_on:
+      - stellar-collector
+    networks:
+      - stellar-network
+    profiles:
+      - debug
+
+  # Optional: Analysis service
+  stellar-analyzer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: stellar-analyzer
+    environment:
+      - NODE_ENV=production
+      - DATABASE_PATH=/app/data/stellar.db
+    env_file:
+      - .env
+    volumes:
+      - stellar_data:/app/data:ro
+      - stellar_exports:/app/exports
+    working_dir: /app
+    command: npm run comprehensive-analysis
+    depends_on:
+      - stellar-collector
+    networks:
+      - stellar-network
+    profiles:
+      - analysis
+
+volumes:
+  stellar_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-volumes/data
+  stellar_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-volumes/logs
+  stellar_exports:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-volumes/exports
+  stellar_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-volumes/config
+
+networks:
+  stellar-network:
+    driver: bridge
+
+# Development override support
+# Use: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
