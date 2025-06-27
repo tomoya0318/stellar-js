@@ -85,10 +85,10 @@
         "noRestrictedImports": "off"
       },
       "suspicious": {
-        "noExplicitAny": "warn",
+        "noExplicitAny": "error",
         "noArrayIndexKey": "off",
         "noFallthroughSwitchClause": "off",
-        "noConsoleLog": "warn",
+        "noConsoleLog": "off",
         "noEmptyBlockStatements": "error"
       },
       "performance": {
