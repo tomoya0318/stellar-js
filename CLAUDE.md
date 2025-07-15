@@ -145,6 +145,12 @@ npm run test        # 全てのテストを実行
 npm run db:generate # スキーマ変更からマイグレーションファイルを生成
 npm run db:migrate  # マイグレーションを実行してDBを更新
 npm run db:studio   # Drizzle Studioを起動してDBをGUIで確認
+
+# Dockerコンテナの起動
+docker compose build --no-cache # コンテナをキャッシュなしでビルド
+docker compose up -d # コンテナの起動
+docker compose down # コンテナの停止
+docker exec -it 
 ```
 
 ## コーディング規約
