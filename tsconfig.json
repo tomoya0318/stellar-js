@@ -1,25 +1,23 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "strict": true,
-    "allowUnusedLabels": false,
-    "allowUnreachableCode": false,
-    "exactOptionalPropertyTypes": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": false,
-    "noUncheckedIndexedAccess": true,
+    /* --- 基本設定 --- */
+    "target": "ES2022", // 最新のNode.jsがサポートするECMAScriptバージョン
+    "module": "NodeNext", // Node.jsのESMサポートに最適化
+    "moduleResolution": "NodeNext", // moduleとセットで指定
+    "strict": true, // 厳格な型チェックを有効に（強く推奨）
+    "esModuleInterop": true, // CommonJSモジュールとの相互運用性を向上
+    "skipLibCheck": true, // 型定義ファイルのチェックをスキップして高速化
+
+    /* --- プロジェクト構成 --- */
+    "outDir": "./dist", // コンパイル後のJSファイルが出力されるディレクトリ
+    "rootDir": "./src", // TypeScriptのソースコードが存在するルートディレクトリ
+
+    /* --- コード品質 --- */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "isolatedModules": true,
-    "checkJs": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "lib": ["ESNext"],
-    "types": ["vitest/importMeta"]
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
   },
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"], // コンパイル対象のファイル
+  "exclude": ["node_modules"] // 対象外のファイル
 }

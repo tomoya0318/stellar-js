@@ -99,6 +99,3 @@ RUN mkdir -p /home/${USERNAME}/works/data /home/${USERNAME}/works/logs /home/${U
 
 # ボリュームマウントポイント
 VOLUME ["/home/${USERNAME}/works/data", "/home/${USERNAME}/works/logs", "/home/${USERNAME}/works/exports"]
-
-# デフォルトコマンド
-CMD ["npm", "run", "dev"]

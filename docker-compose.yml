@@ -20,6 +20,7 @@ services:
       - stellar_data:/home/developer/works/data
       # Mount source code for development
       - .:/home/developer/works:cached
+      - node_modules_data:/home/developer/works/node_modules
     working_dir: /home/developer/works
     command: tail -f /dev/null
     restart: unless-stopped
@@ -35,6 +36,8 @@ volumes:
       type: none
       o: bind
       device: ./docker-volumes/data
+  node_modules_data:
+    driver: local
 
 networks:
   stellar-network:

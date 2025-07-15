@@ -1,11 +1,11 @@
 ---
 title: CLAUDE.md
 created_at: 2025-06-14
-updated_at: 2025-06-27
+updated_at: 2025-07-15
 author: Claude Code
-version: 2.0.0
+version: 2.1.0
 project_type: TypeScript Node.js データ収集ツール
-tags: [github-api, sqlite, drizzle-orm, typescript, tdd]
+tags: [github-api, sqlite, drizzle-orm, typescript, tdd, docker, ast-analysis]
 # このプロパティは、Claudeが関連するドキュメントの更新を検知するために必要です。消去しないでください。
 ---
 
@@ -26,6 +26,53 @@ tags: [github-api, sqlite, drizzle-orm, typescript, tdd]
 - **リンター/フォーマッター**: @biomejs/biome
 - **テストフレームワーク**: Vitest
 - **パッケージ管理**: npm (または pnpm/yarn)
+- **コンテナ化**: Docker + Docker Compose
+- **AST解析**: GumTree (v4.0.0-beta2) - コンテナ内でのみ利用可能
+
+## 開発環境とDocker
+
+### Docker環境での開発
+
+このプロジェクトは**Docker環境での開発を前提**としています。特に以下の機能を利用する場合は、必ずDockerコンテナ内で作業してください：
+
+#### AST（抽象構文木）解析
+- **GumTree**: コードの構造変化を検出するAST差分解析ツール
+- **バージョン**: v4.0.0-beta2
+- **Java依存**: OpenJDK 17が必要
+- **重要**: GumTreeはDockerコンテナ内でのみ利用可能です
+
+```bash
+# AST解析が必要な場合は必ずコンテナ内で実行
+docker compose up -d
+docker exec -it stellar-js bash
+
+# コンテナ内でGumTreeを確認
+gumtree --version  # GumTree 4.0.0-beta2
+
+# AST解析の実行例（コンテナ内）
+gumtree diff file1.js file2.js
+```
+
+#### その他のコンテナ専用機能
+- **Python環境**: better-sqlite3のビルドに必要
+- **ビルドツール**: make, g++, python3などのネイティブ依存関係
+- **Java実行環境**: GumTree実行に必要なOpenJDK 17
+
+### Docker環境のセットアップ
+
+```bash
+# 初回セットアップ
+docker compose build
+
+# 開発環境の起動
+docker compose up -d
+
+# コンテナに接続
+docker exec -it stellar-js bash
+
+# 開発環境の停止
+docker compose down
+```
 
 ## プロジェクト全体の構造 (デフォルト。必要に応じて更新してください)
 
@@ -145,12 +192,31 @@ npm run test        # 全てのテストを実行
 npm run db:generate # スキーマ変更からマイグレーションファイルを生成
 npm run db:migrate  # マイグレーションを実行してDBを更新
 npm run db:studio   # Drizzle Studioを起動してDBをGUIで確認
+```
 
-# Dockerコンテナの起動
-docker compose build --no-cache # コンテナをキャッシュなしでビルド
-docker compose up -d # コンテナの起動
-docker compose down # コンテナの停止
-docker exec -it 
+### Docker環境の操作
+
+```bash
+# 初回セットアップ・ビルド
+docker compose build --no-cache  # コンテナをキャッシュなしでビルド
+docker compose build             # 通常のビルド
+
+# コンテナの起動・停止
+docker compose up -d             # コンテナをバックグラウンドで起動
+docker compose down              # コンテナを停止・削除
+docker compose restart           # コンテナを再起動
+
+# コンテナ内での作業 (AST解析やビルドに必要)
+docker exec -it stellar-js bash # コンテナ内のbashシェルに接続
+
+# コンテナ内でのみ利用可能なツール
+gumtree --version                # GumTree AST解析ツールの確認
+gumtree diff file1.js file2.js   # 2つのファイルのAST差分解析
+java -version                    # Java環境の確認 (GumTreeに必要)
+
+# ログの確認
+docker compose logs stellar-js  # コンテナのログを表示
+docker compose logs -f stellar-js # ログをリアルタイムで監視
 ```
 
 ## コーディング規約
@@ -630,6 +696,63 @@ export async function executeWithTiming<T>(
 - **新しいエラーパターンを2回以上確認** → トラブルシューティングに追加
 
 ## トラブルシューティング
+
+### Docker環境の問題
+
+#### コンテナのビルドエラー
+```bash
+# better-sqlite3のビルドエラーが発生する場合
+docker compose build --no-cache  # キャッシュを無効にして再ビルド
+
+# Pythonやビルドツールが見つからないエラー
+docker compose logs stellar-js  # エラーログを確認
+
+# ポート競合エラー
+docker compose down              # 既存コンテナを停止
+docker system prune              # 不要なリソースを削除
+```
+
+#### GumTree (AST解析) の問題
+```bash
+# コンテナ内でGumTreeが見つからない場合
+docker exec -it stellar-js bash
+echo $PATH                       # PATH環境変数を確認
+ls -la /opt/gumtree/bin/         # GumTreeのインストール確認
+
+# Java環境の確認
+java -version                    # OpenJDK 17が利用可能か確認
+which java                       # Javaのパスを確認
+
+# GumTreeの実行テスト
+gumtree --help                   # ヘルプが表示されることを確認
+```
+
+#### コンテナへの接続問題
+```bash
+# コンテナが起動していない場合
+docker compose ps                # コンテナの状態を確認
+docker compose up -d             # コンテナを起動
+
+# コンテナ名が見つからない場合
+docker ps -a                     # 全コンテナを表示
+docker compose restart           # コンテナを再起動
+
+# 権限問題の場合
+docker exec -it --user root stellar-js bash  # rootユーザーで接続
+```
+
+#### データ永続化の問題
+```bash
+# SQLiteファイルが見つからない場合
+docker exec -it stellar-js ls -la /home/developer/works/data/
+
+# ボリュームマウントの確認
+docker compose config            # 設定内容を確認
+docker volume ls                 # ボリューム一覧を表示
+
+# データディレクトリの権限修正
+docker exec -it stellar-js chown -R developer:developer /home/developer/works/data/
+```
 
 ### 依存関係のエラー
 
